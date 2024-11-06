@@ -7,19 +7,39 @@ import Book from '../Book/Book';
 
 const ListedBooks = () => {
     const [readList, setReadList] = useState([]);
+    const [sort, setSort] = useState('');
     const allBooks = useLoaderData();
     // ideally we will directly get the read book list from the database
-    useEffect(()=> {
+    useEffect(() => {
         const storedReadList = getStoredReadList();
         const storedReadListInt = storedReadList.map(id => parseInt(id));
         console.log(storedReadList, allBooks);
         const readBookList = allBooks.filter(book => storedReadListInt.includes(book.bookId));
 
         setReadList(readBookList);
-    }, [])
+    }, []);
+
+    const hanldeSort = sortType => {
+        setSort(sortType);
+        if(sortType === 'No of pages'){
+            const sortedReadList = [...readList].sort((a, b)=> a.totalPages - b.totalPages);
+            setReadList(sortedReadList);
+        }
+        if(sortType === 'Ratings'){
+            const sortedReadList = [...readList].sort((a,b) => a.rating - b.rating);
+            setReadList(sortedReadList);
+        }
+    }
     return (
         <div>
             <h3 className="text-3xl my-8">Listed Books</h3>
+            <div className="dropdown">
+                <div tabIndex={0} role="button" className="btn m-1">{sort ? `Sort By: ${sort}` : 'Sort by'}</div>
+                <ul tabIndex={0} className="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
+                    <li onClick={()=> hanldeSort('Ratings')}><a>Ratings</a></li>
+                    <li onClick={()=> hanldeSort('No of pages')}><a>No of Pages</a></li>
+                </ul>
+            </div>
             <Tabs>
                 <TabList>
                     <Tab>Read List</Tab>
